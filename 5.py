@@ -15,9 +15,11 @@ from datetime import datetime
 from PyQt5.QtWidgets import (
     QApplication, QMainWindow, QVBoxLayout, QWidget, QLabel,
     QLineEdit, QPushButton, QFileDialog, QMessageBox, QTextEdit,
-    QHBoxLayout, QProgressBar, QListWidget, QListWidgetItem  # <-- adicione aqui
+    QHBoxLayout, QProgressBar, QListWidget, QListWidgetItem,
+    QTabWidget, QFrame
 )
 from PyQt5.QtCore import Qt, QThread, pyqtSignal
+from PyQt5.QtGui import QFont, QIcon
 
 # Centralize extensões suportadas
 ARCHIVE_EXTENSIONS = (
@@ -28,18 +30,186 @@ ARCHIVE_EXTENSIONS = (
 )
 
 APP_STYLE = """
-QWidget { background-color: #2D2D2D; color: #E0E0E0; font-family: 'Segoe UI'; font-size: 12px; border: none; }
-QMainWindow { background-color: #2D2D2D; border: 1px solid #444; }
-QPushButton { background-color: #3A3A3A; border: 1px solid #444; border-radius: 4px; padding: 8px 16px; min-width: 100px; color: #E0E0E0; }
-QPushButton:hover { background-color: #4A4A4A; }
-QPushButton:pressed { background-color: #2A2A2A; }
-QPushButton:disabled { background-color: #2A2A2A; color: #777; }
-QLineEdit { background-color: #3A3A3A; border: 1px solid #444; border-radius: 4px; padding: 8px; selection-background-color: #505050; }
-QTextEdit { background-color: #3A3A3A; border: 1px solid #444; border-radius: 4px; padding: 8px; font-family: 'Consolas', monospace; }
-QLabel { color: #E0E0E0; padding: 4px 0; }
-QStatusBar { background-color: #3A3A3A; border-top: 1px solid #444; padding: 4px; }
-QProgressBar { border: 1px solid #444; border-radius: 4px; text-align: center; background-color: #3A3A3A; }
-QProgressBar::chunk { background-color: #4A6FA5; width: 10px; }
+/* Main Window Styling */
+QMainWindow {
+    background-color: #2D2D2D;
+    border: none;
+}
+
+/* General Widget Styling */
+QWidget {
+    background-color: #2D2D2D;
+    color: #E0E0E0;
+    font-family: 'Segoe UI';
+    font-size: 13px;
+    border: none;
+}
+
+/* Tab Widget Styling */
+QTabWidget::pane {
+    border: 1px solid #444;
+    border-radius: 4px;
+    margin-top: 10px;
+    background: #353535;
+}
+
+QTabBar::tab {
+    background: #3A3A3A;
+    color: #E0E0E0;
+    padding: 10px 20px;
+    border-top-left-radius: 4px;
+    border-top-right-radius: 4px;
+    border: 1px solid #444;
+    margin-right: 2px;
+    min-width: 120px;
+    font-size: 13px;
+}
+
+QTabBar::tab:selected {
+    background: #4A6FA5;
+    border-bottom-color: #4A6FA5;
+}
+
+QTabBar::tab:hover {
+    background: #505050;
+}
+
+/* Button Styling */
+QPushButton {
+    background-color: #3A3A3A;
+    border: 1px solid #444;
+    border-radius: 4px;
+    padding: 8px 16px;
+    min-width: 100px;
+    color: #E0E0E0;
+}
+
+QPushButton:hover {
+    background-color: #4A4A4A;
+}
+
+QPushButton:pressed {
+    background-color: #2A2A2A;
+}
+
+QPushButton:disabled {
+    background-color: #2A2A2A;
+    color: #777;
+}
+
+/* Special Buttons */
+QPushButton#extractButton {
+    background-color: #5A8E5A;
+    font-weight: bold;
+    font-size: 15px;
+    padding: 12px 30px;
+    border: 1px solid #4A7A4A;
+}
+
+QPushButton#extractButton:hover {
+    background-color: #6B9E6B;
+}
+
+QPushButton#extractButton:pressed {
+    background-color: #4A7A4A;
+}
+
+QPushButton#folderButton {
+    background-color: #4A6FA5;
+    font-size: 13px;
+    padding: 8px 12px;
+}
+
+/* Line Edit Styling */
+QLineEdit {
+    background-color: #3A3A3A;
+    border: 1px solid #444;
+    border-radius: 4px;
+    padding: 8px;
+    selection-background-color: #505050;
+    min-height: 32px;
+}
+
+QLineEdit:focus {
+    border: 1px solid #4A6FA5;
+}
+
+/* Text Edit Styling */
+QTextEdit {
+    background-color: #3A3A3A;
+    border: 1px solid #444;
+    border-radius: 4px;
+    padding: 8px;
+    font-family: 'Consolas', monospace;
+    font-size: 12px;
+    color: #E0E0E0;
+}
+
+/* Label Styling */
+QLabel {
+    color: #E0E0E0;
+    padding: 4px 0;
+}
+
+QLabel#titleLabel {
+    font-size: 24px;
+    font-weight: bold;
+    margin-bottom: 16px;
+    color: #E0E0E0;
+}
+
+/* Status Bar Styling */
+QStatusBar {
+    background-color: #3A3A3A;
+    border-top: 1px solid #444;
+    padding: 4px;
+    font-size: 12px;
+}
+
+/* Progress Bar Styling */
+QProgressBar {
+    border: 1px solid #444;
+    border-radius: 4px;
+    text-align: center;
+    background-color: #3A3A3A;
+    height: 24px;
+}
+
+QProgressBar::chunk {
+    background-color: #4A6FA5;
+    border-radius: 3px;
+}
+
+/* List Widget Styling */
+QListWidget {
+    background-color: #3A3A3A;
+    border: 1px solid #444;
+    border-radius: 4px;
+    font-size: 13px;
+    padding: 4px;
+    outline: 0;
+}
+
+QListWidget::item {
+    padding: 6px;
+    border-bottom: 1px solid #444;
+}
+
+QListWidget::item:selected {
+    background-color: #4A6FA5;
+    color: white;
+}
+
+QListWidget::item:hover {
+    background-color: #505050;
+}
+
+/* Separator Styling */
+QFrame#separator {
+    background-color: #444;
+    max-height: 1px;
+    min-height: 1px;
+}
 """
 
 class ExtractionThread(QThread):
@@ -51,7 +221,7 @@ class ExtractionThread(QThread):
         super().__init__(parent)
         self.root_folder = ""
         self.password = ""
-        self.selected_folders = None  # <-- novo atributo
+        self.selected_folders = None
         self.executor = ThreadPoolExecutor(max_workers=multiprocessing.cpu_count())
         self._is_running = True
 
@@ -228,6 +398,12 @@ class ExtractionThread(QThread):
             original_size = os.path.getsize(archive_path) / (1024 * 1024)
             ext = archive_path.lower()
 
+            # NOVO: pegar data de criação e modificação do arquivo
+            archive_ctime = os.path.getctime(archive_path)
+            archive_mtime = os.path.getmtime(archive_path)
+            archive_ctime_str = datetime.fromtimestamp(archive_ctime).strftime('%Y-%m-%d %H:%M:%S')
+            archive_mtime_str = datetime.fromtimestamp(archive_mtime).strftime('%Y-%m-%d %H:%M:%S')
+
             if ext.endswith('.7z'):
                 self.update_status.emit("Extraindo com 7-Zip (máximo desempenho)...")
                 self.extract_7z(archive_path, output_folder, self.password)
@@ -256,7 +432,10 @@ class ExtractionThread(QThread):
                 "message": f"Extraído via {'Otimizado' if ext.endswith(('.zip', '.rar', '.7z')) else 'Python'}",
                 "original_size_mb": round(original_size, 2),
                 "extracted_size_mb": round(extracted_size, 2),
-                "files": os.listdir(output_folder)
+                "files": os.listdir(output_folder),
+                "latest_archive": archive_name,
+                "latest_archive_ctime": archive_ctime_str,
+                "latest_archive_mtime": archive_mtime_str
             }
 
         except Exception as e:
@@ -265,7 +444,10 @@ class ExtractionThread(QThread):
                 "message": str(e),
                 "original_size_mb": round(original_size, 2) if 'original_size' in locals() else 0,
                 "extracted_size_mb": 0,
-                "files": []
+                "files": [],
+                "latest_archive": archive_name if 'archive_name' in locals() else "",
+                "latest_archive_ctime": archive_ctime_str if 'archive_ctime_str' in locals() else "",
+                "latest_archive_mtime": archive_mtime_str if 'archive_mtime_str' in locals() else ""
             }
 
     def run(self):
@@ -325,60 +507,141 @@ class BackupExtractor(QMainWindow):
     def __init__(self):
         super().__init__()
         self.setWindowTitle("Extrator de Arquivos Automático")
-        self.setGeometry(200, 200, 900, 700)
+        self.setWindowIcon(QIcon.fromTheme('archive-extract'))
+        self.setGeometry(200, 200, 1000, 750)
         self.initUI()
 
     def initUI(self):
         main_widget = QWidget()
-        layout = QVBoxLayout()
-        layout.setContentsMargins(20, 20, 20, 20)
-        layout.setSpacing(15)
+        main_layout = QVBoxLayout()
+        main_layout.setContentsMargins(20, 20, 20, 20)
+        main_layout.setSpacing(15)
 
+        # Título
         title = QLabel("📦 Extrator de Arquivos Automático")
-        title.setStyleSheet("font-size: 18px; font-weight: bold;")
-        layout.addWidget(title, alignment=Qt.AlignCenter)
+        title.setObjectName("titleLabel")
+        title.setAlignment(Qt.AlignCenter)
+        main_layout.addWidget(title)
 
-        select_group = QWidget()
-        select_layout = QHBoxLayout()
+        # Separador
+        separator = QFrame()
+        separator.setFrameShape(QFrame.HLine)
+        separator.setObjectName("separator")
+        main_layout.addWidget(separator)
+
+        # Tabs
+        self.tabs = QTabWidget()
+        self.tabs.setDocumentMode(True)
+        main_layout.addWidget(self.tabs, stretch=1)
+
+        # Aba de seleção de pastas
+        select_tab = QWidget()
+        select_layout = QVBoxLayout()
+        select_layout.setContentsMargins(15, 15, 15, 15)
+        select_layout.setSpacing(15)
+        select_tab.setLayout(select_layout)
+
+        # Grupo seleção pasta
+        folder_group = QWidget()
+        folder_group_layout = QHBoxLayout()
+        folder_group_layout.setContentsMargins(0, 0, 0, 0)
+        folder_group_layout.setSpacing(10)
+        
         self.folder_label = QLabel("📂 Pasta principal: Não selecionada")
-        select_layout.addWidget(self.folder_label, stretch=4)
+        self.folder_label.setStyleSheet("font-size: 14px;")
+        folder_group_layout.addWidget(self.folder_label, stretch=4)
+        
         self.select_btn = QPushButton("Selecionar Pasta")
-        self.select_btn.setStyleSheet("background-color: #4A6FA5;")
+        self.select_btn.setObjectName("folderButton")
         self.select_btn.clicked.connect(self.select_root_folder)
-        select_layout.addWidget(self.select_btn, stretch=1)
-        select_group.setLayout(select_layout)
-        layout.addWidget(select_group)
+        folder_group_layout.addWidget(self.select_btn, stretch=1)
+        
+        folder_group.setLayout(folder_group_layout)
+        select_layout.addWidget(folder_group)
 
-        self.password_input = QLineEdit()
-        self.password_input.setPlaceholderText("🔑 Digite a senha (deixe em branco se não tiver)")
-        self.password_input.setEchoMode(QLineEdit.Password)
-        layout.addWidget(self.password_input)
-
-        self.progress_bar = QProgressBar()
-        layout.addWidget(self.progress_bar)
-
-        self.time_label = QLabel("Tempo restante: calculando...")
-        layout.addWidget(self.time_label)
-
-        self.extract_btn = QPushButton("▶ Extrair Arquivos Recentes")
-        self.extract_btn.setStyleSheet("background-color: #5A8E5A; font-weight: bold;")
-        self.extract_btn.clicked.connect(self.start_extraction)
-        self.extract_btn.setEnabled(False)
-        layout.addWidget(self.extract_btn)
-
-        self.report_text = QTextEdit()
-        self.report_text.setReadOnly(True)
-        layout.addWidget(self.report_text, stretch=1)
-
+        # Lista de pastas
         self.folder_list = QListWidget()
         self.folder_list.setSelectionMode(QListWidget.MultiSelection)
-        layout.addWidget(self.folder_list)
-        self.folder_list.hide()  # Só mostra depois de selecionar a pasta
+        self.folder_list.setMinimumHeight(200)
+        select_layout.addWidget(self.folder_list)
+        self.folder_list.hide()
+
+        # Grupo senha
+        password_group = QWidget()
+        password_layout = QVBoxLayout()
+        password_layout.setContentsMargins(0, 0, 0, 0)
+        password_layout.setSpacing(5)
+        
+        password_label = QLabel("🔑 Senha (opcional):")
+        password_label.setStyleSheet("font-size: 13px;")
+        password_layout.addWidget(password_label)
+        
+        self.password_input = QLineEdit()
+        self.password_input.setPlaceholderText("Digite a senha se os arquivos estiverem protegidos")
+        self.password_input.setEchoMode(QLineEdit.Password)
+        password_layout.addWidget(self.password_input)
+        
+        password_group.setLayout(password_layout)
+        select_layout.addWidget(password_group)
+
+        # Botão de extrair centralizado
+        btn_container = QWidget()
+        btn_layout = QHBoxLayout()
+        btn_layout.setContentsMargins(0, 10, 0, 0)
+        
+        self.extract_btn = QPushButton("▶ Extrair Arquivos Recentes")
+        self.extract_btn.setObjectName("extractButton")
+        self.extract_btn.clicked.connect(self.start_extraction)
+        self.extract_btn.setEnabled(False)
+        
+        btn_layout.addStretch()
+        btn_layout.addWidget(self.extract_btn)
+        btn_layout.addStretch()
+        
+        btn_container.setLayout(btn_layout)
+        select_layout.addWidget(btn_container)
+
+        select_layout.addStretch()
+        self.tabs.addTab(select_tab, "🔍 Seleção de Pastas")
+
+        # Aba de relatório/log
+        report_tab = QWidget()
+        report_layout = QVBoxLayout()
+        report_layout.setContentsMargins(15, 15, 15, 15)
+        report_layout.setSpacing(15)
+        report_tab.setLayout(report_layout)
+
+        # Grupo progresso
+        progress_group = QWidget()
+        progress_layout = QVBoxLayout()
+        progress_layout.setContentsMargins(0, 0, 0, 0)
+        progress_layout.setSpacing(5)
+        
+        self.progress_bar = QProgressBar()
+        progress_layout.addWidget(self.progress_bar)
+        
+        self.time_label = QLabel("Tempo restante: aguardando início...")
+        self.time_label.setStyleSheet("font-size: 13px; color: #AAAAAA;")
+        progress_layout.addWidget(self.time_label)
+        
+        progress_group.setLayout(progress_layout)
+        report_layout.addWidget(progress_group)
+
+        # Relatório
+        report_label = QLabel("📋 Relatório de Extração:")
+        report_label.setStyleSheet("font-size: 14px;")
+        report_layout.addWidget(report_label)
+        
+        self.report_text = QTextEdit()
+        self.report_text.setReadOnly(True)
+        report_layout.addWidget(self.report_text, stretch=1)
+
+        self.tabs.addTab(report_tab, "📊 Relatório")
 
         self.status_bar = self.statusBar()
         self.status_bar.showMessage("Pronto")
 
-        main_widget.setLayout(layout)
+        main_widget.setLayout(main_layout)
         self.setCentralWidget(main_widget)
 
     def select_root_folder(self):
@@ -413,7 +676,7 @@ class BackupExtractor(QMainWindow):
         self.thread = ExtractionThread()
         self.thread.root_folder = self.root_folder
         self.thread.password = self.password_input.text()
-        self.thread.selected_folders = selected_folders  # <-- novo atributo
+        self.thread.selected_folders = selected_folders
 
         self.thread.update_progress.connect(self.update_progress)
         self.thread.update_status.connect(self.update_status)
@@ -463,9 +726,16 @@ class BackupExtractor(QMainWindow):
             folder_name = os.path.basename(folder)
             status_icon = "✅" if data['status'] == 'Sucesso' else "❌"
 
+            latest_file = data.get('latest_archive', 'N/A')
+            latest_file_ctime = data.get('latest_archive_ctime', 'N/A')
+            latest_file_mtime = data.get('latest_archive_mtime', 'N/A')
+
             report_lines.extend([
                 f"\n📁 {folder_name}",
                 f"   {status_icon} Status: {data['status']}",
+                f"   📦 Arquivo mais recente: {latest_file}",
+                f"   🕒 Criado em: {latest_file_ctime}",
+                f"   🕒 Modificado em: {latest_file_mtime}",
                 f"   📦 Tamanho original: {data.get('original_size_mb', 0):.2f} MB",
                 f"   🗃️ Tamanho extraído: {data.get('extracted_size_mb', 0):.2f} MB",
                 f"   💬 Mensagem: {data['message']}",
@@ -500,7 +770,13 @@ if __name__ == "__main__":
         sys.exit(1)
 
     app = QApplication(sys.argv)
+    app.setStyle("Fusion")
     app.setStyleSheet(APP_STYLE)
+    
+    # Configurar fonte padrão
+    font = QFont("Segoe UI", 10)
+    app.setFont(font)
+    
     window = BackupExtractor()
     window.show()
     sys.exit(app.exec_())
